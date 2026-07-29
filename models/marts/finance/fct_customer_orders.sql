@@ -58,10 +58,9 @@ with
                 then 'new'
                 else 'return'
             end as nvsr,
-            customer_lifetime.clv_bad as customer_lifetime_value,
+           sum(total_amount_paid) over (partition by customer_id order by order_placed_at, p.order_id) as customer_lifetime_value,
             first_value(p.order_placed_at) over (partition by customer_id order by order_placed_at, p.order_id asc) as fdos
         from paid_orders p
-        left outer join customer_lifetime on customer_lifetime.order_id = p.order_id
         order by order_id
     )
 -- Simple Select Statmen
