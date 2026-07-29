@@ -33,18 +33,6 @@ with
         left join customers on orders.user_id = customers.id
     ),
 
-
-    customer_lifetime as (
-        select p.order_id, sum(t2.total_amount_paid) as clv_bad
-        from paid_orders p
-        left join
-            paid_orders t2
-            on p.customer_id = t2.customer_id
-            and p.order_id >= t2.order_id
-        group by 1
-        order by p.order_id
-    ),
-
     -- Final CTE
     final as (
         select
@@ -54,12 +42,23 @@ with
                 partition by customer_id order by p.order_id
             ) as customer_sales_seq,
             case
-                when (rank() over (partition by customer_id order by order_placed_at, p.order_id) = 1)
+                when
+                    (
+                        rank() over (
+                            partition by customer_id
+                            order by order_placed_at, p.order_id
+                        )
+                        = 1
+                    )
                 then 'new'
                 else 'return'
             end as nvsr,
-           sum(total_amount_paid) over (partition by customer_id order by order_placed_at, p.order_id) as customer_lifetime_value,
-            first_value(p.order_placed_at) over (partition by customer_id order by order_placed_at, p.order_id asc) as fdos
+            sum(total_amount_paid) over (
+                partition by customer_id order by order_placed_at, p.order_id
+            ) as customer_lifetime_value,
+            first_value(p.order_placed_at) over (
+                partition by customer_id order by order_placed_at, p.order_id asc
+            ) as fdos
         from paid_orders p
         order by order_id
     )
