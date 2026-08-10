@@ -1,0 +1,11 @@
+snapshots:
+  - name: orders_snapshot
+    relation: source('jaffle_shop', 'orders')
+    description: A snapshot of orders dynamic_table_graph_history
+    config: 
+      database: analytics
+      schema: snapshots
+      strategy: check
+      unique_key: id
+      check_cols: ['id', 'user_id', 'order_date', 'status']
+      hard_deletes: ignore
