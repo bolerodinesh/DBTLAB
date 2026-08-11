@@ -1,6 +1,8 @@
 {{
     config(
-        materialized='ephemeral'
+        materialized='incremental',
+        unique_key = 'order_id',
+        incremental_strategy = 'merge',
     )
 }}
 
@@ -35,3 +37,7 @@ order_payments as (
 )
 
 select * from final
+{% if is_incremental() %}
+    -- this filter will only be applied on an incremental run
+    where order_date > (select max(order_date) from {{ this }}) 
+{% endif %}
