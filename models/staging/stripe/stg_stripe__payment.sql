@@ -14,6 +14,7 @@ transformed as (
     orderid as order_id,
     created as payment_created,
     status as payment_status,
+    paymentmethod as payment_method,
     round(amount / 100.0, 2) as payment_amount
 
   from source
