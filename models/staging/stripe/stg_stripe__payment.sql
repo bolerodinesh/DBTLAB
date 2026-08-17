@@ -15,7 +15,7 @@ transformed as (
     created as payment_created,
     status as payment_status,
     paymentmethod as payment_method,
-    round(amount / 100.0, 2) as payment_amount
+    {{cents_to_dollars("amount","4")}} as payment_amount
 
   from source
 
